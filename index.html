@@ -325,7 +325,7 @@ const CONFIG = {
     {name:"Mathsmerizing",          match:"mathsmerizing"}
   ],
   // Google sign-in (optional). Paste your Firebase web-app config here to turn on accounts.
-  FIREBASE: { apiKey: "", authDomain: "", projectId: "", appId: "" },
+  FIREBASE: { apiKey: "AIzaSyDVHKQB_p7II3o-J5oYM7cutYJvTSsOSnY", authDomain: "ganit-desk.firebaseapp.com", projectId: "ganit-desk", appId: "" },
   ADMIN_EMAILS: ["you@gmail.com"],   // Gmail addresses that can open the student dashboard (#admin)
   PRIORITY_SEARCH: true,     // one extra YouTube search per query aimed at the channels above (uses 100 more quota units)
   MIN_SECONDS: 181,          // anything 3:00 or shorter is treated as a Short and dropped
@@ -757,7 +757,7 @@ async function initCloud(){
   try{
     await loadScript(base+"firebase-app-compat.js");
     await Promise.all([loadScript(base+"firebase-auth-compat.js"),loadScript(base+"firebase-firestore-compat.js")]);
-    firebase.initializeApp(FB); cloud.db=firebase.firestore(); cloud.on=true;
+    firebase.initializeApp(Object.fromEntries(Object.entries(FB).filter(([,v])=>v))); cloud.db=firebase.firestore(); cloud.on=true;
     firebase.auth().getRedirectResult().catch(()=>{});
     firebase.auth().onAuthStateChanged(u=>onUser(u));
   }catch(e){ cloud.on=false; }
