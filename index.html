@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ganit Desk</title>
+<meta name="description" content="Focused YouTube study feed for Class XI–XII JEE Maths. No Shorts, no distractions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: white page, four-colour palette (blue, red, yellow, green) with light tints for fills. One column of work, a top bar with three rooms (Search, My Feed, Syllabus). */
+:root{
+  --paper:#FFFFFF; --surface:#FFFFFF; --sky:#F1F3F4; --ink:#202124; --muted:#5F6368; --line:#DADCE0;
+  --grid:transparent; --accent:#174EA6; --accent-soft:#D2E3FC; --accent-ink:#FFFFFF;
+  --blue:#174EA6; --blue-m:#4285F4; --blue-l:#D2E3FC;
+  --red:#A50E0E; --red-m:#EA4335; --red-l:#FAD2CF;
+  --orange:#E37400; --yellow:#FBBC04; --yellow-l:#FEEFC3;
+  --green:#0D652D; --green-m:#34A853; --green-l:#CEEAD6; --grey:#9AA0A6;
+  --mark:#FEEFC3; --link:#174EA6; --done:#0D652D; --danger:#A50E0E; --overlay:#202124;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:10px;
+  color-scheme:light;
+}
+html,body{background:#FFFFFF}
+
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--f-body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;min-height:100vh}
+img{max-width:100%;display:block}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+a{color:var(--link)}
+
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Top bar */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);margin-right:auto}
+.brand .glyph{width:34px;height:34px;border-radius:8px;background:var(--blue-m);color:#FFFFFF;display:grid;place-items:center;font:600 22px/1 var(--f-mono)}
+.brand b{font:800 20px/1 var(--f-display);letter-spacing:-.01em}
+.brand small{display:block;font:500 11px/1.2 var(--f-mono);color:var(--muted);letter-spacing:.04em;margin-top:3px}
+.tabs{display:flex;gap:4px;background:var(--sky);border:1px solid var(--line);border-radius:999px;padding:3px}
+.tabs a{text-decoration:none;color:var(--muted);padding:6px 14px;border-radius:999px;font-weight:700;font-size:14px;white-space:nowrap}
+.tabs a[aria-current="page"]{background:var(--blue-l);color:var(--blue)}
+.today{font:500 12px/1.2 var(--f-mono);color:var(--muted);text-align:right}
+.today strong{display:block;color:var(--orange);font-size:15px}
+.icon-btn{background:none;border:1px solid var(--line);border-radius:8px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+.icon-btn:hover{color:var(--ink);border-color:var(--muted)}
+
+main{padding-block:28px 64px}
+h1,h2,h3{font-family:var(--f-display);letter-spacing:-.015em;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4.4vw,42px);font-weight:800;line-height:1.08}
+h2{font-size:22px;font-weight:800}
+h3{font-size:17px;font-weight:600}
+.lede{color:var(--muted);max-width:60ch;margin:8px 0 0}
+.eyebrow{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* Search box */
+.ask{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:6px 6px 6px 10px;display:flex;gap:6px;align-items:flex-end;box-shadow:inset 0 1px 2px rgba(0,0,0,.08)}
+.ask:focus-within{border-color:var(--link)}
+.ask textarea{flex:1;min-width:0;border:0;background:transparent;resize:none;padding:10px 12px;font-size:17px;line-height:1.45;max-height:180px;outline:none}
+.btn{border:0;border-radius:999px;padding:10px 16px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
+.btn:hover{filter:brightness(1.15)}
+.btn.ghost{background:var(--sky);color:var(--ink);border:1px solid transparent}
+.btn.ghost:hover{background:#E8EAED}
+.btn.small{padding:6px 11px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:default}
+.hint{font-size:13px;color:var(--muted);margin-top:10px}
+.hint kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;padding:1px 5px;background:var(--surface)}
+
+.filters{display:flex;flex-wrap:wrap;gap:14px 22px;margin-top:18px}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid transparent;background:var(--sky);border-radius:8px!important;border-radius:999px;padding:5px 11px;font-size:13.5px;cursor:pointer;color:var(--ink)}
+.chip:hover{background:#E8EAED}
+.chip[aria-pressed="true"]{background:var(--blue-l);color:var(--blue);border-color:var(--blue-l);font-weight:700}
+.noshorts{display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--red);background:var(--red-l);border:1px solid var(--red-l);border-radius:999px;padding:5px 9px;align-self:flex-start}
+
+/* Status line */
+.status{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;justify-content:space-between}
+.status .q{font-size:14px;color:var(--muted)}
+.status .q b{color:var(--ink)}
+.topic-tag{display:inline-block;background:var(--mark);color:var(--ink);font-weight:700;padding:1px 8px;border-radius:4px}
+.linkish{background:none;border:0;padding:0;color:var(--link);cursor:pointer;text-decoration:underline;font-size:14px}
+select.sort{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 8px;font-size:14px}
+
+/* Video rows */
+.list{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.vid{display:grid;grid-template-columns:220px 1fr;gap:16px;background:var(--surface);border:1px solid transparent;border-radius:var(--r);padding:12px}
+.vid.done{opacity:.72}
+.thumb{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:16/9;background:var(--line);cursor:pointer;border:0;padding:0;width:100%;max-width:100%}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.dur{position:absolute;right:6px;bottom:6px;background:rgba(10,12,20,.82);color:#fff;font:500 12px/1 var(--f-mono);padding:4px 6px;border-radius:4px}
+.vbody{min-width:0;display:flex;flex-direction:column;gap:6px}
+.vtitle{font-weight:700;font-size:16.5px;line-height:1.35;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.vtitle:hover{color:var(--ink);text-decoration:underline}
+.meta{font-size:13.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px;font-variant-numeric:tabular-nums}
+.meta .ch{color:var(--ink);font-weight:700}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:4px}
+.saved-btn{background:var(--green-l)!important;color:var(--green)!important}
+.pill{font:500 11px/1 var(--f-mono);text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:4px 8px;border:1px solid var(--line);color:var(--muted)}
+.pill.ok{color:var(--green);background:var(--green-l);border-color:var(--green-l)}
+@media (max-width:640px){
+  .vid{grid-template-columns:1fr;gap:10px}
+  .today{display:none}
+  .tabs a{padding:6px 11px}
+}
+
+/* Empty / setup / error */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:24px}
+.panel ol{padding-left:20px;margin:10px 0 0}
+.panel li{margin:6px 0}
+.panel.err{border-color:var(--red-l);background:#FFF8F7}
+.panel.err h3{color:var(--danger)}
+code{font:500 13px var(--f-mono);background:var(--accent-soft);padding:1px 5px;border-radius:4px;word-break:break-all}
+.field{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.field input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--paper);font:500 14px var(--f-mono)}
+.skel{height:132px;border-radius:var(--r);background:linear-gradient(90deg,var(--surface),var(--line),var(--surface));background-size:200% 100%;animation:sh 1.2s infinite linear;border:1px solid var(--line)}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* Feed */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{background:var(--sky);border-color:transparent!important;}
+.stat:nth-child(1){background:var(--blue-l)}.stat:nth-child(2){background:var(--green-l)}.stat:nth-child(3){background:var(--yellow-l)}.stat:nth-child(4){background:var(--red-l)}
+.stat{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.stat b{display:block;font:600 26px/1.1 var(--f-mono);font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.section{margin-top:34px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px}
+.group-title{margin:18px 0 0;font:600 14px/1.3 var(--f-display);color:var(--muted);display:flex;gap:8px;align-items:center}
+.group-title .cls{font:500 10.5px/1 var(--f-mono);border:1px solid var(--line);border-radius:4px;padding:3px 5px}
+.follow-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:14px}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green-m)}
+.fcard .row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+select.chsel{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:4px 6px;font-size:13px;max-width:100%}
+
+/* Syllabus */
+.syl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:22px}
+@media (max-width:760px){.syl{grid-template-columns:1fr}}
+.syl-col h2{display:flex;align-items:baseline;gap:10px}
+.syl-col h2 span{font:500 12px var(--f-mono);color:var(--muted)}
+.chap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-top:10px}
+.chap-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.chap-head button.name{background:none;border:0;padding:0;text-align:left;font:600 16px/1.3 var(--f-display);cursor:pointer;color:var(--ink)}
+.chap-head button.name:hover{text-decoration:underline}
+.star{background:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12.5px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.star[aria-pressed="true"]{background:var(--yellow);color:var(--ink);border-color:var(--yellow);font-weight:700}
+.chap .chips{margin-top:8px}
+.chap .chip{background:var(--surface);border-color:var(--line)!important;font-size:12.5px;padding:3px 9px}
+
+/* Player */
+.player{position:fixed;inset:0;z-index:50;background:var(--overlay);display:flex;flex-direction:column;
+  padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.pbar{display:flex;align-items:center;gap:12px;color:#E9EDF5;max-width:1280px;width:100%;margin:0 auto 10px}
+.pbar .ptitle{flex:1;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar .ptime{font:500 13px var(--f-mono);color:#AEB7C8;white-space:nowrap}
+.pbar .btn.ghost{color:#E9EDF5;border-color:rgba(255,255,255,.25)}
+.pgrid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px;max-width:1280px;width:100%;margin:0 auto}
+.stage{position:relative;background:#000;border-radius:10px;overflow:hidden;align-self:start;aspect-ratio:16/9;width:100%;max-height:100%}
+.stage iframe,.stage #yt{position:absolute;inset:0;width:100%;height:100%;border:0}
+.pcol{display:flex;flex-direction:column;gap:10px;min-width:0;align-self:start}
+.shield{background:#2B2D31;border-radius:10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;color:#fff;padding:12px 14px}
+.shield p{margin:0;color:#C5CCDA;font-size:14px}
+.shield .row{display:flex;gap:8px;flex-wrap:wrap}
+.shield .btn.ghost{color:#fff;border-color:rgba(255,255,255,.3)}
+.notes{background:var(--surface);color:var(--ink);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:0;overflow:auto}
+.notes textarea{width:100%;min-height:76px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--paper);resize:vertical}
+.note{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;font-size:14px;border-top:1px solid var(--line);padding-top:8px}
+.note .ts{font:500 12px var(--f-mono);background:var(--blue-l);color:var(--blue);border:0;border-radius:4px;padding:3px 6px;cursor:pointer}
+.note .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
+.note span{min-width:0;overflow-wrap:anywhere}
+@media (max-width:860px){
+  .pgrid{grid-template-columns:1fr;overflow:auto;align-content:start}
+  .notes{overflow:visible}
+  .pbar .ptime{display:none}
+}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:10px;z-index:60;display:flex;gap:12px;align-items:center;font-size:14px;max-width:calc(100% - 32px)}
+.toast button{background:none;border:0;color:var(--yellow);font-weight:700;cursor:pointer}
+
+/* Settings */
+.set-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);padding:9px 0;font-size:14px}
+.set-row:first-of-type{border-top:0}
+footer{color:var(--muted);font-size:12.5px;padding-block:0 30px}
+
+/* ---------- Phone tuning ---------- */
+.filter-toggle{display:none}
+.pbar .btn.ghost,.shield .btn.ghost{background:transparent}
+.pbar .btn.ghost:hover,.shield .btn.ghost:hover{background:rgba(255,255,255,.12)}
+.toast{box-shadow:0 0 0 1px rgba(255,255,255,.18),0 8px 24px rgba(0,0,0,.25)}
+@media (hover:none){ .kbd-hint{display:none} }
+@media (max-width:640px){
+  .top{position:static}
+  .top .wrap{gap:10px;padding-block:8px}
+  .brand small{display:none}
+  .brand b{font-size:18px}
+  .brand .glyph{width:30px;height:30px;font-size:19px}
+  .tabs{order:3;width:100%;justify-content:space-between}
+  .tabs a{flex:1;text-align:center;padding:9px 6px}
+  main{padding-block:18px 48px}
+  h1{font-size:26px}
+  .lede{font-size:15px}
+  .ask{flex-direction:column;align-items:stretch;border-radius:18px;padding:6px}
+  .ask textarea{font-size:17px;padding:10px}
+  .ask .btn{padding:12px 16px;font-size:16px}
+  .filter-toggle{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;margin-top:14px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--sky);font-size:14px;cursor:pointer;text-align:left}
+  .filter-toggle b{font-weight:700}
+  .filters{display:none;margin-top:12px}
+  .filters.open{display:flex}
+  .chip{padding:9px 13px;font-size:14px}
+  .btn.small{padding:9px 14px}
+  .vid{padding:8px 0;border:0;border-bottom:1px solid var(--line);border-radius:0}
+  .status{margin-top:18px}
+  .player{padding-left:0;padding-right:0;padding-top:env(safe-area-inset-top,0px)}
+  .pbar{padding:8px 12px;margin-bottom:0}
+  .pbar .ptitle{font-size:14px}
+  .stage{border-radius:0}
+  .pgrid{gap:0}
+  .notes{border-radius:0;margin-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#search" aria-label="Ganit Desk home">
+      <span class="glyph" aria-hidden="true">∫</span>
+      <span><b>Ganit Desk</b><small>JEE MATHS · CLASS XI–XII</small></span>
+    </a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#search" data-tab="search">Search</a>
+      <a href="#feed" data-tab="feed">My Feed</a>
+      <a href="#syllabus" data-tab="syllabus">Syllabus</a>
+    </nav>
+    <div class="today" title="Time spent watching on Ganit Desk today"><span>STUDIED TODAY</span><strong id="todayMin">0 min</strong></div>
+    <a class="icon-btn" href="#settings" aria-label="Settings" title="Settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </a>
+  </div>
+</header>
+
+<main class="wrap" id="app"></main>
+<footer class="wrap">Videos come from YouTube. Ganit Desk hides Shorts and anything under 3 minutes, and never autoplays the next video.</footer>
+
+<div class="player" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="ptitle">
+  <div class="pbar">
+    <span class="ptitle" id="ptitle"></span>
+    <span class="ptime" id="psession">Session 0:00</span>
+    <button class="btn small" id="pDone">Mark done</button>
+    <button class="btn ghost small" id="pClose">Close</button>
+  </div>
+  <div class="pgrid">
+    <div class="pcol">
+      <div class="stage" id="stage">
+        <div id="yt"></div>
+      </div>
+      <div class="shield" id="shield" hidden>
+        <div><strong id="shieldTitle">Lesson finished</strong>
+        <p id="shieldText">No autoplay. Decide what's next.</p></div>
+        <div class="row" id="shieldRow"></div>
+      </div>
+    </div>
+    <aside class="notes" aria-label="Notes for this video">
+      <div class="eyebrow">My notes for this video</div>
+      <textarea id="noteText" placeholder="e.g. King's property: ∫₀ᵃ f(x)dx = ∫₀ᵃ f(a−x)dx"></textarea>
+      <button class="btn small" id="noteAdd">Add note at 0:00</button>
+      <div id="noteList"></div>
+    </aside>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden role="status"><span id="toastMsg"></span><button id="toastUndo" hidden>Undo</button></div>
+
+<script>
+/* ============================================================
+   SITE OWNER SETTING
+   Put your YouTube Data API v3 key here so students don't need one.
+   In Google Cloud Console, restrict the key to "HTTP referrers" = your site's domain.
+   ============================================================ */
+const CONFIG = {
+  YOUTUBE_API_KEY: "AIzaSyDC5OACd32T5vP_sUBiPo4D-bzq9o_mOmM",
+  REGION: "IN",
+  MIN_SECONDS: 181,          // anything 3:00 or shorter is treated as a Short and dropped
+  CACHE_HOURS: 24            // repeat searches are served from the browser cache to save quota
+};
+
+/* ---------------- Syllabus (JEE Main / NCERT order) ---------------- */
+const CHAPTERS = [
+  {id:"sets",cls:"XI",name:"Sets",q:"sets venn diagram",subs:["Venn diagrams","Operations on sets","Number of elements problems"],kw:["set","sets","venn","union","intersection","subset","∪","∩","power set"]},
+  {id:"relfn",cls:"XI",name:"Relations & Functions",q:"functions domain range graphs",subs:["Domain and range","Graphs of functions","Greatest integer & fractional part","Even & odd functions"],kw:["domain","range","function","f(x)","[x]","greatest integer","fractional part","modulus function"]},
+  {id:"trig",cls:"XI",name:"Trigonometric Functions",q:"trigonometry",subs:["Trigonometric identities","Trigonometric equations","Properties of triangles","Maximum & minimum of trig expressions"],kw:["sin","cos","tan","cot","sec","cosec","trigonometric","sinx","cosx","tanx","θ"]},
+  {id:"complex",cls:"XI",name:"Complex Numbers",q:"complex numbers",subs:["Modulus & argument","Argand plane & loci","Cube roots of unity","De Moivre's theorem"],kw:["complex","iota","argand","argument","modulus","conjugate","z̄","|z","i^2","omega","ω","cube root of unity"]},
+  {id:"quad",cls:"XI",name:"Quadratic Equations",q:"quadratic equations",subs:["Nature of roots","Location of roots","Symmetric functions of roots","Common roots"],kw:["quadratic","roots","discriminant","α","β","alpha","beta","x^2","x²"]},
+  {id:"ineq",cls:"XI",name:"Linear Inequalities",q:"linear inequalities",subs:["Wavy curve method","Modulus inequalities"],kw:["inequality","inequalities","solution set","wavy curve"]},
+  {id:"pnc",cls:"XI",name:"Permutations & Combinations",q:"permutations and combinations",subs:["Arrangements with restrictions","Circular permutations","Distribution of objects","Selections & committees"],kw:["permutation","permutations","combination","combinations","arrange","arrangements","arranged","ways","ncr","npr","committee","letters of the word","digits","how many"]},
+  {id:"binom",cls:"XI",name:"Binomial Theorem",q:"binomial theorem",subs:["General & middle term","Term independent of x","Sum of binomial coefficients","Greatest term"],kw:["binomial","expansion","coefficient","term independent","middle term","(1+x)","general term"]},
+  {id:"seq",cls:"XI",name:"Sequences & Series",q:"sequences and series",subs:["AP, GP, HP","AM–GM inequality","Sum of special series","Method of differences"],kw:["sequence","series","a.p","g.p","h.p","ap","gp","progression","nth term","sum of n terms","sum to n","sum to infinity"]},
+  {id:"lines",cls:"XI",name:"Straight Lines",q:"straight lines coordinate geometry",subs:["Forms of a line","Angle between lines","Distance of a point from a line","Locus problems"],kw:["straight line","slope","intercept","line passing","perpendicular distance","collinear","locus","bisector","centroid","orthocentre","circumcentre"]},
+  {id:"circle",cls:"XI",name:"Circles",q:"circles coordinate geometry",subs:["Tangent & normal to a circle","Chord of contact","Family of circles","Radical axis"],kw:["circle","circles","radius","chord","x^2+y^2","x²+y²","concentric","orthogonal"]},
+  {id:"conics",cls:"XI",name:"Parabola, Ellipse & Hyperbola",q:"conic sections parabola ellipse hyperbola",subs:["Parabola","Ellipse","Hyperbola","Tangents & normals to conics"],kw:["parabola","ellipse","hyperbola","focus","foci","directrix","eccentricity","latus rectum","conic","y^2=4ax","y²=4ax"]},
+  {id:"limits",cls:"XI",name:"Limits",q:"limits calculus",subs:["Standard limits","L'Hôpital's rule","1^∞ form","Limits using expansions"],kw:["limit","lim","tends to","→","approaches","l'hospital","l'hôpital","x→0","x->0"]},
+  {id:"stats",cls:"XI",name:"Statistics",q:"statistics mean variance",subs:["Mean deviation","Variance & standard deviation"],kw:["mean","median","variance","standard deviation","mean deviation","observations"]},
+  {id:"prob",cls:"XI–XII",name:"Probability",q:"probability",subs:["Classical probability","Conditional probability","Bayes' theorem","Binomial distribution","Random variables"],kw:["probability","dice","die","coin","cards","at random","bayes","random variable","drawn","tossed","thrown","bag contains","balls"]},
+  {id:"fntypes",cls:"XII",name:"Types of Relations & Functions",q:"one one onto functions relations",subs:["Equivalence relations","One-one & onto","Composition & inverse"],kw:["one-one","onto","injective","surjective","bijective","equivalence relation","reflexive","symmetric","transitive","composition","fog","gof"]},
+  {id:"invtrig",cls:"XII",name:"Inverse Trigonometric Functions",q:"inverse trigonometric functions",subs:["Principal values","Properties & identities","Sum of series with tan⁻¹"],kw:["sin^-1","cos^-1","tan^-1","sin⁻¹","cos⁻¹","tan⁻¹","cot⁻¹","arcsin","arctan","inverse trig","principal value"]},
+  {id:"matrix",cls:"XII",name:"Matrices & Determinants",q:"matrices and determinants",subs:["Properties of determinants","Adjoint & inverse","System of linear equations","Special matrices"],kw:["matrix","matrices","determinant","det","adj","adjoint","transpose","singular","|a|","symmetric matrix","skew","cramer","system of equations"]},
+  {id:"cont",cls:"XII",name:"Continuity & Differentiability",q:"continuity and differentiability",subs:["Continuity at a point","Differentiability","Chain rule & implicit","Parametric & log differentiation"],kw:["continuous","continuity","differentiable","differentiability","derivative of","chain rule","implicit","dy/dx","d/dx"]},
+  {id:"aod",cls:"XII",w:1.5,name:"Application of Derivatives",q:"application of derivatives",subs:["Maxima & minima","Increasing & decreasing","Tangents & normals","Rolle's & LMVT"],kw:["maximum","minimum","maxima","minima","increasing","decreasing","monotonic","tangent","normal","rolle","mean value","rate of change","greatest value","least value"]},
+  {id:"indef",cls:"XII",name:"Indefinite Integration",q:"indefinite integration",subs:["Substitution","Integration by parts","Partial fractions","Special integrals"],kw:["∫","integral","integrate","integration","dx","antiderivative","primitive","by parts"]},
+  {id:"def",cls:"XII",w:2,name:"Definite Integration",q:"definite integration",subs:["Properties (King's rule)","Leibniz rule","Limit as a sum","Periodic functions"],kw:["definite integral","∫0","∫_0","∫₀","from 0 to","0 to π","limits of integration","leibniz","lim n→∞ σ","limit of sum"]},
+  {id:"area",cls:"XII",w:2,name:"Area Under Curves",q:"area under curves",subs:["Area between curves","Area with modulus & GIF"],kw:["area bounded","area enclosed","area under","region bounded","area of the region","area between"]},
+  {id:"de",cls:"XII",w:2,name:"Differential Equations",q:"differential equations",subs:["Order & degree","Variable separable","Homogeneous","Linear DE"],kw:["differential equation","order and degree","general solution","integrating factor","particular solution","variable separable","dy/dx +"]},
+  {id:"vector",cls:"XII",name:"Vector Algebra",q:"vector algebra",subs:["Dot product","Cross product","Scalar triple product","Vector triple product"],kw:["vector","vectors","dot product","cross product","î","ĵ","k̂","unit vector","triple product","coplanar","a⃗","position vector"]},
+  {id:"threed",cls:"XII",name:"Three Dimensional Geometry",q:"3d geometry",subs:["Direction cosines","Lines in space","Planes","Shortest distance between lines"],kw:["plane","planes","direction cosines","direction ratios","skew","3d","three dimensional","shortest distance","line in space","(x-1)/","z-"]},
+  {id:"lpp",cls:"XII",name:"Linear Programming",q:"linear programming",subs:["Graphical method","Corner point method"],kw:["linear programming","objective function","feasible region","lpp","constraints"]}
+];
+const CH = Object.fromEntries(CHAPTERS.map(c=>[c.id,c]));
+
+/* ---------------- Storage (fails soft) ---------------- */
+const KEY="ganitdesk.v1", CKEY="ganitdesk.cache.v1";
+function load(k,fallback){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fallback}catch(e){return fallback}}
+function persist(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+const S = Object.assign({saved:{},follows:["def","aod","pnc"],hidden:{},apiKey:"",study:{},filters:{exam:"main",kind:"concept",lang:"en",len:"any"},sort:"relevance"}, load(KEY,{}));
+const save=()=>persist(KEY,S);
+let cache = load(CKEY,{});
+const apiKey=()=> (CONFIG.YOUTUBE_API_KEY||S.apiKey||"").trim();
+
+/* ---------------- Helpers ---------------- */
+function h(tag,attrs,...kids){const el=document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs||{})){ if(v==null||v===false) continue;
+    if(k==="class") el.className=v; else if(k.startsWith("on")) el.addEventListener(k.slice(2),v);
+    else if(k==="text") el.textContent=v; else el.setAttribute(k,v===true?"":v);}
+  for(const c of kids.flat()){ if(c==null||c===false) continue; el.append(c.nodeType?c:document.createTextNode(String(c)));}
+  return el;}
+const $=s=>document.querySelector(s);
+function fmtDur(s){s=Math.round(s);const H=Math.floor(s/3600),M=Math.floor(s%3600/60),sec=s%60;return (H?H+":"+String(M).padStart(2,"0"):M)+":"+String(sec).padStart(2,"0")}
+function isoDur(d){const m=/P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/.exec(d||"");if(!m)return 0;return (+m[1]||0)*86400+(+m[2]||0)*3600+(+m[3]||0)*60+(+m[4]||0)}
+function fmtViews(n){n=+n||0;if(n>=1e7)return (n/1e7).toFixed(1).replace(/\.0$/,"")+" Cr views";if(n>=1e5)return (n/1e5).toFixed(1).replace(/\.0$/,"")+" L views";if(n>=1e3)return Math.round(n/1e3)+"K views";return n+" views"}
+const today=()=>new Date().toISOString().slice(0,10);
+let toastTimer;
+function toast(msg,undo){const t=$("#toast");$("#toastMsg").textContent=msg;const u=$("#toastUndo");u.hidden=!undo;u.onclick=()=>{undo();t.hidden=true};t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.hidden=true,4200)}
+
+/* ---------------- Topic detection ---------------- */
+function detect(text){
+  const t=" "+text.toLowerCase()+" ";let best=null,score=0;
+  for(const c of CHAPTERS){let s=0;
+    for(const k of c.kw){const kk=k.toLowerCase(); if(/^[a-z]+$/.test(kk)){ if(new RegExp("[^a-z]"+kk+"[^a-z]").test(t)) s+=kk.length>4?2:1; } else if(t.includes(kk)) s+=kk.length>3?3:2; }
+    if(c.name.toLowerCase().split(/[ &,]+/).some(w=>w.length>4&&t.includes(w))) s+=2;
+    s*=(c.w||1);
+    if(s>score){score=s;best=c}}
+  return score>=2?best:null;}
+function looksLikeQuestion(text){return text.length>70 || /[=∫√π→≤≥^]|find|prove|show that|evaluate|if .* then/i.test(text)}
+
+/* ---------------- YouTube API ---------------- */
+async function yt(path,params){
+  const url="https://www.googleapis.com/youtube/v3/"+path+"?"+new URLSearchParams({...params,key:apiKey()});
+  let r; try{ r=await fetch(url) }catch(e){ throw new Error("Couldn't reach YouTube. Check your internet connection and try again.") }
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const reason=j?.error?.errors?.[0]?.reason||"";
+    if(reason==="quotaExceeded"||reason==="dailyLimitExceeded") throw new Error("Today's YouTube search limit for this site is used up. Saved videos in My Feed still play. Searches reset at midnight Pacific time.");
+    if(reason==="keyInvalid"||r.status===400&&/key/i.test(j?.error?.message||"")) throw new Error("The YouTube API key isn't valid. Check it in Settings.");
+    if(r.status===403) throw new Error("YouTube refused the request ("+(reason||"403")+"). If the key is restricted to a website, open Ganit Desk from that website.");
+    throw new Error(j?.error?.message||("YouTube returned an error ("+r.status+")."));}
+  return j;}
+
+async function searchVideos(query,f){
+  const ck=JSON.stringify([query,f.len,f.lang]);
+  const hit=cache[ck]; if(hit && Date.now()-hit.at < CONFIG.CACHE_HOURS*3600e3) return {items:hit.items,cached:true};
+  const base={part:"snippet",type:"video",q:query,maxResults:f.len==="any"?50:30,videoEmbeddable:"true",safeSearch:"strict",regionCode:CONFIG.REGION,relevanceLanguage:f.lang==="hi"?"hi":"en"};
+  if(f.len==="medium") base.videoDuration="medium"; if(f.len==="long") base.videoDuration="long";
+  const sr=await yt("search",base);
+  const ids=(sr.items||[]).map(i=>i.id?.videoId).filter(Boolean);
+  if(!ids.length) return {items:[],cached:false};
+  const vr=await yt("videos",{part:"snippet,contentDetails,statistics",id:ids.join(",")});
+  const order=Object.fromEntries(ids.map((id,i)=>[id,i]));
+  const items=(vr.items||[]).map(v=>({
+      id:v.id,title:v.snippet.title,channel:v.snippet.channelTitle,channelId:v.snippet.channelId,
+      published:v.snippet.publishedAt,desc:(v.snippet.description||"").slice(0,300),
+      thumb:(v.snippet.thumbnails?.medium||v.snippet.thumbnails?.default||{}).url||"",
+      dur:isoDur(v.contentDetails.duration),views:+(v.statistics?.viewCount||0),likes:+(v.statistics?.likeCount||0),rank:order[v.id]
+    }))
+    .filter(v=>v.dur>=CONFIG.MIN_SECONDS)                                   // NO SHORTS: hard duration floor
+    .filter(v=>!/#shorts?\b/i.test(v.title+" "+v.desc))                     // NO SHORTS: tagged shorts
+    .filter(v=>v.dur<6*3600)                                                // drop 6h+ live-stream dumps
+    .sort((a,b)=>a.rank-b.rank);
+  cache[ck]={at:Date.now(),items};
+  const keys=Object.keys(cache); if(keys.length>60){keys.sort((a,b)=>cache[a].at-cache[b].at).slice(0,keys.length-60).forEach(k=>delete cache[k])}
+  persist(CKEY,cache);
+  return {items,cached:false};}
+
+/* ---------------- Search view ---------------- */
+const FILTERS={
+  exam:{label:"Exam",opts:[["main","JEE Main"],["adv","JEE Advanced"],["both","Both"]]},
+  kind:{label:"I want",opts:[["concept","Concept lecture"],["problems","Solved problems"],["pyq","Previous year Qs"],["oneshot","One-shot revision"]]},
+  lang:{label:"Language",opts:[["en","English"],["hi","Hindi / Hinglish"]]},
+  len:{label:"Length",opts:[["any","Any (no Shorts)"],["medium","4–20 min"],["long","20 min +"]]}
+};
+const KIND_Q={concept:"concept lecture",problems:"problem solving questions",pyq:"PYQ previous year questions",oneshot:"one shot revision"};
+const EXAM_Q={main:"JEE Main",adv:"JEE Advanced",both:"JEE"};
+let lastSearch={input:"",exact:false,chapter:null,query:"",items:[],cached:false,error:"",loading:false};
+
+function buildQuery(input,exact){
+  const f=S.filters; const ch=detect(input);
+  let core, usedChapter=null;
+  if(!exact && ch && looksLikeQuestion(input)){ core=ch.q; usedChapter=ch; }
+  else core=input.replace(/\s+/g," ").trim().slice(0,120);
+  const q=[core,"maths",EXAM_Q[f.exam],KIND_Q[f.kind],f.lang==="hi"?"hindi":""].filter(Boolean).join(" ");
+  return {q,chapter:usedChapter||ch,rewritten:!!usedChapter};}
+
+async function runSearch(input,exact=false){
+  input=(input||"").trim(); if(!input) return;
+  const {q,chapter,rewritten}=buildQuery(input,exact);
+  lastSearch={input,exact,chapter,rewritten,query:q,items:[],cached:false,error:"",loading:true};
+  if(route!=="search") go("search"); else renderSearch();
+  if(!apiKey()){lastSearch.loading=false;renderSearch();return}
+  try{const r=await searchVideos(q,S.filters);lastSearch.items=r.items;lastSearch.cached=r.cached}
+  catch(e){lastSearch.error=e.message}
+  lastSearch.loading=false; window.__filtersOpen=false; renderSearch();
+  try{ if(window.innerWidth<=640){ const st=document.querySelector(".status"); st&&st.scrollIntoView({behavior:"smooth",block:"start"}); } }catch(e){} }
+
+function videoRow(v,ctx){
+  const saved=S.saved[v.id]; const done=saved&&saved.done;
+  const yr=v.published?new Date(v.published).getFullYear():"";
+  const chSel = ctx==="feed" ? h("select",{class:"chsel","aria-label":"Chapter",onchange:e=>{S.saved[v.id].chapter=e.target.value;save();render()}},
+        CHAPTERS.map(c=>h("option",{value:c.id,selected:saved.chapter===c.id},c.name))) : null;
+  return h("article",{class:"vid"+(done?" done":"")},
+    h("button",{class:"thumb",onclick:()=>openPlayer(v),"aria-label":"Play "+v.title},
+      v.thumb?h("img",{src:v.thumb,alt:"",loading:"lazy"}):null, h("span",{class:"dur"},fmtDur(v.dur))),
+    h("div",{class:"vbody"},
+      h("button",{class:"vtitle",onclick:()=>openPlayer(v)},v.title),
+      h("div",{class:"meta"},h("span",{class:"ch"},v.channel), yr?h("span",{},yr):null, v.views?h("span",{},fmtViews(v.views)):null,
+        done?h("span",{class:"pill ok"},"Done"):null, saved&&saved.notes?.length?h("span",{class:"pill"},saved.notes.length+" note"+(saved.notes.length>1?"s":"")):null),
+      h("div",{class:"actions"},
+        h("button",{class:"btn small",onclick:()=>openPlayer(v)},"Watch"),
+        ctx==="feed"
+          ? [chSel, h("button",{class:"btn ghost small",onclick:()=>{S.saved[v.id].done=!done;save();render()}},done?"Mark not done":"Mark done"),
+             h("button",{class:"btn ghost small",onclick:()=>{const b=S.saved[v.id];delete S.saved[v.id];save();render();toast("Removed from My Feed",()=>{S.saved[v.id]=b;save();render()})}},"Remove")]
+          : [h("button",{class:"btn small "+(saved?"saved-btn":"ghost"),onclick:()=>toggleSave(v)},saved?"✓ In My Feed":"+ Save to My Feed"),
+             h("button",{class:"btn ghost small",title:"Hide every video from this channel",onclick:()=>hideChannel(v)},"Hide channel")]
+      )));}
+
+function toggleSave(v){
+  if(S.saved[v.id]){const b=S.saved[v.id];delete S.saved[v.id];save();render();toast("Removed from My Feed",()=>{S.saved[v.id]=b;save();render()});return}
+  const ch=detect(v.title+" "+(lastSearch.input||""))||lastSearch.chapter||CHAPTERS[0];
+  S.saved[v.id]={id:v.id,title:v.title,channel:v.channel,channelId:v.channelId,thumb:v.thumb,dur:v.dur,published:v.published,views:v.views,chapter:ch.id,addedAt:Date.now(),done:false,notes:[]};
+  save();render();toast("Saved to My Feed under "+ch.name);}
+function hideChannel(v){S.hidden[v.channelId]=v.channel;save();render();toast("Hidden: "+v.channel,()=>{delete S.hidden[v.channelId];save();render()})}
+
+function renderSearch(){
+  const app=$("#app"); app.replaceChildren();
+  app.append(h("div",{class:"eyebrow"},"Find the right explanation"),
+    h("h1",{},"Type a topic, or paste the question you're stuck on."),
+    h("p",{class:"lede"},"Ganit Desk turns it into a JEE Maths search, drops every Short, and shows full lessons only."));
+  const ta=h("textarea",{id:"q",rows:"2",placeholder:"e.g. Leibniz rule   or   ∫₀^π x sinx/(1+cos²x) dx",value:null});
+  ta.value=lastSearch.input||"";
+  const go=()=>runSearch(ta.value,false);
+  ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();go()}});
+  ta.addEventListener("input",()=>{ta.style.height="auto";ta.style.height=Math.min(ta.scrollHeight,180)+"px"});
+  app.append(h("form",{class:"ask",onsubmit:e=>{e.preventDefault();go()}},ta,h("button",{class:"btn",type:"submit"},"Find videos")),
+    h("div",{class:"hint kbd-hint"},"Press ",h("kbd",{},"Enter")," to search, ",h("kbd",{},"Shift+Enter")," for a new line."));
+  const fl=h("div",{class:"filters"});
+  for(const [k,g] of Object.entries(FILTERS)){
+    fl.append(h("div",{class:"fgroup"},h("span",{class:"eyebrow"},g.label),
+      h("div",{class:"chips",role:"group","aria-label":g.label},g.opts.map(([val,lab])=>h("button",{class:"chip",type:"button","aria-pressed":String(S.filters[k]===val),
+        onclick:()=>{S.filters[k]=val;save(); if(lastSearch.input) runSearch(lastSearch.input,lastSearch.exact); else renderSearch()}},lab)))));
+  }
+  fl.append(h("div",{class:"fgroup"},h("span",{class:"eyebrow"},"Always on"),h("span",{class:"noshorts"},"⊘ No Shorts")));
+  const labOf=(k)=>FILTERS[k].opts.find(o=>o[0]===S.filters[k])[1];
+  const ft=h("button",{class:"filter-toggle",type:"button","aria-expanded":String(!!window.__filtersOpen),onclick:()=>{window.__filtersOpen=!window.__filtersOpen;renderSearch()}},
+    h("span",{},"Filters: ",h("b",{},[labOf("exam"),labOf("kind"),labOf("lang")].join(" · "))),h("span",{"aria-hidden":"true"},window.__filtersOpen?"▲":"▼"));
+  if(window.__filtersOpen) fl.classList.add("open");
+  app.append(ft,fl);
+
+  if(!apiKey()){ app.append(setupPanel()); return; }
+  if(!lastSearch.input){ app.append(startPanel()); return; }
+
+  const st=h("div",{class:"status"});
+  const qline=h("div",{class:"q"});
+  if(lastSearch.rewritten&&lastSearch.chapter){
+    qline.append("Looks like ",h("span",{class:"topic-tag"},lastSearch.chapter.name),". Showing lessons on that topic. ",
+      h("button",{class:"linkish",onclick:()=>runSearch(lastSearch.input,true)},"Search my exact words instead"));
+  } else qline.append("Searching ",h("b",{},"“"+lastSearch.query+"”"));
+  st.append(qline);
+  if(lastSearch.items.length){
+    st.append(h("select",{class:"sort","aria-label":"Sort results",onchange:e=>{S.sort=e.target.value;save();renderSearch()}},
+      [["relevance","Best match"],["views","Most watched"],["new","Newest"],["short","Shortest first"]].map(([v,l])=>h("option",{value:v,selected:S.sort===v},l))));
+  }
+  app.append(st);
+
+  if(lastSearch.loading){const l=h("div",{class:"list"});for(let i=0;i<4;i++)l.append(h("div",{class:"skel"}));app.append(l);return}
+  if(lastSearch.error){app.append(h("div",{class:"panel err"},h("h3",{},"Search didn't work"),h("p",{},lastSearch.error)));return}
+  let items=lastSearch.items.filter(v=>!S.hidden[v.channelId]);
+  const hiddenCount=lastSearch.items.length-items.length;
+  if(S.sort==="views") items=[...items].sort((a,b)=>b.views-a.views);
+  if(S.sort==="new") items=[...items].sort((a,b)=>(b.published||"").localeCompare(a.published||""));
+  if(S.sort==="short") items=[...items].sort((a,b)=>a.dur-b.dur);
+  items=items.slice(0,15);
+  if(!items.length){app.append(h("div",{class:"panel"},h("h3",{},"No full-length lessons found"),h("p",{},"Try fewer words, a chapter name (like “Definite Integration”), or set Length to “Any”.")));return}
+  const list=h("div",{class:"list"}); items.forEach(v=>list.append(videoRow(v,"search"))); app.append(list);
+  app.append(h("p",{class:"hint"},items.length+" lessons"+(hiddenCount?" · "+hiddenCount+" from hidden channels not shown":"")+(lastSearch.cached?" · from today's saved results":"")));
+}
+
+function startPanel(){
+  const p=h("div",{class:"panel"},h("h3",{},"Start with a chapter you're revising"));
+  const followed=S.follows.map(id=>CH[id]).filter(Boolean);
+  const pool=followed.length?followed:CHAPTERS.slice(0,6);
+  const chips=h("div",{class:"chips",style:"margin-top:12px"});
+  pool.forEach(c=>c.subs.slice(0,3).forEach(sub=>chips.append(h("button",{class:"chip",onclick:()=>runSearch(sub+" "+c.name,true)},sub))));
+  p.append(h("p",{class:"hint"},followed.length?"From the chapters you follow:":"Popular starting points:"),chips);
+  return p;}
+
+function setupPanel(){
+  const inp=h("input",{id:"keyInput",placeholder:"Paste YouTube Data API v3 key",autocomplete:"off"});
+  return h("div",{class:"panel"},
+    h("h3",{},"One-time setup: connect YouTube"),
+    h("p",{class:"hint"},"Ganit Desk searches YouTube through Google's free YouTube Data API. The site owner normally puts the key in the file. To try it yourself:"),
+    h("ol",{},
+      h("li",{},"Open ",h("a",{href:"https://console.cloud.google.com/apis/library/youtube.googleapis.com",target:"_blank",rel:"noopener"},"YouTube Data API v3 in Google Cloud Console")," and click Enable."),
+      h("li",{},"Go to APIs & Services → Credentials → Create credentials → API key."),
+      h("li",{},"Restrict it to ",h("b",{},"HTTP referrers")," with your site's address, and to the YouTube Data API only."),
+      h("li",{},"Paste it below (stays in this browser only), or put it in ",h("code",{},"CONFIG.YOUTUBE_API_KEY")," at the top of index.html.")),
+    h("form",{class:"field",onsubmit:e=>{e.preventDefault();S.apiKey=inp.value.trim();save();renderSearch();toast(S.apiKey?"Key saved. Try a search.":"Key cleared")}},inp,h("button",{class:"btn",type:"submit"},"Save key")));
+}
+
+/* ---------------- Feed view ---------------- */
+function renderFeed(){
+  const app=$("#app"); app.replaceChildren();
+  const all=Object.values(S.saved).sort((a,b)=>b.addedAt-a.addedAt);
+  const todo=all.filter(v=>!v.done), done=all.filter(v=>v.done);
+  const weekSecs=Object.entries(S.study).filter(([d])=>Date.now()-new Date(d).getTime()<7*864e5).reduce((a,[,s])=>a+s,0);
+  app.append(h("div",{class:"eyebrow"},"My Feed"),h("h1",{},"Only what you chose to watch."),
+    h("p",{class:"lede"},"Nothing appears here unless you saved it. No recommendations, no autoplay."));
+  app.append(h("div",{class:"stats"},
+    h("div",{class:"stat"},h("b",{},todo.length),h("span",{},"to watch")),
+    h("div",{class:"stat"},h("b",{},done.length),h("span",{},"completed")),
+    h("div",{class:"stat"},h("b",{},Math.round((S.study[today()]||0)/60)),h("span",{},"min today")),
+    h("div",{class:"stat"},h("b",{},(weekSecs/3600).toFixed(1)),h("span",{},"hours this week"))));
+
+  // Followed chapters
+  const fsec=h("section",{class:"section"},h("div",{class:"section-head"},h("h2",{},"Chapters I follow"),h("a",{href:"#syllabus",class:"linkish"},"Change chapters")));
+  if(!S.follows.length) fsec.append(h("p",{class:"hint"},"Follow chapters from the Syllabus page to see your progress here."));
+  else{const g=h("div",{class:"follow-grid"});
+    S.follows.map(id=>CH[id]).filter(Boolean).forEach(c=>{
+      const inCh=all.filter(v=>v.chapter===c.id), d=inCh.filter(v=>v.done).length;
+      g.append(h("div",{class:"fcard"},
+        h("div",{class:"row"},h("span",{class:"pill"},"Class "+c.cls),h("span",{},d+"/"+inCh.length+" done")),
+        h("h3",{},c.name),
+        h("div",{class:"bar"},h("i",{style:"width:"+(inCh.length?Math.round(d/inCh.length*100):0)+"%"})),
+        h("button",{class:"btn ghost small",onclick:()=>runSearch(c.name,true)},"Find videos")));});
+    fsec.append(g);}
+  app.append(fsec);
+
+  const usec=h("section",{class:"section"},h("div",{class:"section-head"},h("h2",{},"Up next"),h("span",{class:"hint"},todo.length+" saved")));
+  if(!todo.length) usec.append(h("div",{class:"panel"},h("h3",{},"Your feed is empty"),h("p",{class:"hint"},"Search a topic and press “+ Save to My Feed” on lessons you want to watch. They'll be grouped here by chapter."),h("a",{href:"#search",class:"btn",style:"display:inline-block;text-decoration:none;margin-top:6px"},"Search a topic")));
+  else{
+    const byCh={}; todo.forEach(v=>(byCh[v.chapter]=byCh[v.chapter]||[]).push(v));
+    CHAPTERS.filter(c=>byCh[c.id]).forEach(c=>{
+      usec.append(h("div",{class:"group-title"},c.name,h("span",{class:"cls"},c.cls)));
+      const l=h("div",{class:"list"}); byCh[c.id].forEach(v=>l.append(videoRow(v,"feed"))); usec.append(l);});
+  }
+  app.append(usec);
+
+  if(done.length){
+    const det=h("details",{class:"section"},h("summary",{class:"section-head",style:"cursor:pointer"},h("h2",{style:"display:inline"},"Completed ("+done.length+")")));
+    const l=h("div",{class:"list"}); done.forEach(v=>l.append(videoRow(v,"feed"))); det.append(l); app.append(det);}
+}
+
+/* ---------------- Syllabus view ---------------- */
+function renderSyllabus(){
+  const app=$("#app"); app.replaceChildren();
+  app.append(h("div",{class:"eyebrow"},"Syllabus"),h("h1",{},"Pick a chapter, then a sub-topic."),
+    h("p",{class:"lede"},"Follow the chapters you're working on. They show up in My Feed with your progress."));
+  const grid=h("div",{class:"syl"});
+  for(const cls of ["XI","XII"]){
+    const chs=CHAPTERS.filter(c=>c.cls===cls||(c.cls==="XI–XII"&&cls==="XII"));
+    const col=h("div",{class:"syl-col"},h("h2",{},"Class "+cls,h("span",{},chs.length+" chapters")));
+    chs.forEach(c=>{
+      const on=S.follows.includes(c.id);
+      col.append(h("div",{class:"chap"},
+        h("div",{class:"chap-head"},h("button",{class:"name",onclick:()=>runSearch(c.name,true)},c.name),
+          h("button",{class:"star","aria-pressed":String(on),onclick:()=>{S.follows=on?S.follows.filter(x=>x!==c.id):[...S.follows,c.id];save();renderSyllabus()}},on?"★ Following":"☆ Follow")),
+        h("div",{class:"chips"},c.subs.map(s=>h("button",{class:"chip",onclick:()=>runSearch(s+" "+c.name,true)},s)))));});
+    grid.append(col);}
+  app.append(grid);}
+
+/* ---------------- Settings ---------------- */
+function renderSettings(){
+  const app=$("#app"); app.replaceChildren();
+  app.append(h("div",{class:"eyebrow"},"Settings"),h("h1",{},"Settings"));
+  const keyP=h("div",{class:"panel"},h("h3",{},"YouTube connection"));
+  if(CONFIG.YOUTUBE_API_KEY) keyP.append(h("p",{class:"hint"},"Set up by the site owner. Nothing to do here."));
+  else{const inp=h("input",{id:"keyInput2",placeholder:"YouTube Data API v3 key",autocomplete:"off"});inp.value=S.apiKey||"";
+    keyP.append(h("p",{class:"hint"},"Stored only in this browser."),h("form",{class:"field",onsubmit:e=>{e.preventDefault();S.apiKey=inp.value.trim();save();toast("Saved")}},inp,h("button",{class:"btn",type:"submit"},"Save")));}
+  app.append(keyP);
+
+  const hp=h("div",{class:"panel"},h("h3",{},"Hidden channels"));
+  const hs=Object.entries(S.hidden);
+  if(!hs.length) hp.append(h("p",{class:"hint"},"None. Use “Hide channel” on a search result to stop seeing a channel."));
+  hs.forEach(([id,name])=>hp.append(h("div",{class:"set-row"},h("span",{},name),h("button",{class:"btn ghost small",onclick:()=>{delete S.hidden[id];save();renderSettings()}},"Show again"))));
+  app.append(hp);
+
+  const fileIn=h("input",{type:"file",accept:"application/json",hidden:true,onchange:async e=>{
+    try{const d=JSON.parse(await e.target.files[0].text()); if(!d||typeof d.saved!=="object") throw 0;
+      Object.assign(S,{saved:d.saved,follows:d.follows||S.follows,hidden:d.hidden||{},study:d.study||{}});save();toast("Feed restored: "+Object.keys(S.saved).length+" videos");renderSettings()}
+    catch(_){toast("That file isn't a Ganit Desk backup.")}}});
+  const confirmRow=h("div",{class:"set-row",hidden:true},h("span",{},"Delete your feed, notes and study time from this browser?"),
+    h("span",{},h("button",{class:"btn small",style:"background:var(--danger)",onclick:()=>{S.saved={};S.study={};S.hidden={};save();cache={};persist(CKEY,cache);toast("Cleared");renderSettings()}},"Delete"),
+      " ",h("button",{class:"btn ghost small",onclick:()=>confirmRow.hidden=true},"Cancel")));
+  app.append(h("div",{class:"panel"},h("h3",{},"Your data"),
+    h("p",{class:"hint"},"Your feed lives in this browser. Back it up to move it to another device."),
+    h("div",{class:"set-row"},h("span",{},"Download a backup file"),h("button",{class:"btn ghost small",onclick:exportData},"Download")),
+    h("div",{class:"set-row"},h("span",{},"Restore from a backup file"),h("button",{class:"btn ghost small",onclick:()=>fileIn.click()},"Choose file")),fileIn,
+    h("div",{class:"set-row"},h("span",{},"Start fresh"),h("button",{class:"btn ghost small",onclick:()=>confirmRow.hidden=false},"Clear my data")),confirmRow));
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({app:"ganit-desk",version:1,exported:new Date().toISOString(),saved:S.saved,follows:S.follows,hidden:S.hidden,study:S.study},null,1)],{type:"application/json"});
+  const a=h("a",{href:URL.createObjectURL(blob),download:"ganit-desk-backup-"+today()+".json"});document.body.append(a);a.click();a.remove();}
+
+/* ---------------- Player (distraction-free) ---------------- */
+let player=null, cur=null, ytReady=null, pState=-1, sessionSecs=0;
+function loadYT(){ if(ytReady) return ytReady;
+  ytReady=new Promise(res=>{ if(window.YT&&YT.Player) return res(true);
+    window.onYouTubeIframeAPIReady=()=>res(true);
+    const s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";s.onerror=()=>res(false);document.head.append(s);
+    setTimeout(()=>res(!!(window.YT&&YT.Player)),6000);});
+  return ytReady;}
+
+async function openPlayer(v){
+  cur=v; sessionSecs=0; $("#ptitle").textContent=v.title; $("#player").hidden=false; document.body.style.overflow="hidden";
+  $("#shield").hidden=true; updateDoneBtn(); renderNotes(); updateSession();
+  const ok=await loadYT();
+  $("#stage").querySelector("#yt")?.remove(); $("#stage").querySelectorAll("iframe").forEach(f=>f.remove());
+  const holder=h("div",{id:"yt"}); $("#stage").prepend(holder);
+  const vars={rel:0,modestbranding:1,playsinline:1,iv_load_policy:3,autoplay:1,fs:1};
+  if(ok){
+    player=new YT.Player("yt",{host:"https://www.youtube-nocookie.com",videoId:v.id,playerVars:{...vars,origin:location.origin},
+      events:{onStateChange:e=>onState(e.data)}});
+  } else {
+    player=null;
+    holder.replaceWith(h("iframe",{src:"https://www.youtube-nocookie.com/embed/"+v.id+"?"+new URLSearchParams(vars),allow:"autoplay; encrypted-media; picture-in-picture; fullscreen",allowfullscreen:true,title:v.title}));
+  }
+  $("#pClose").focus();
+}
+function closePlayer(){ try{player&&player.destroy&&player.destroy()}catch(e){} player=null; pState=-1; $("#player").hidden=true; document.body.style.overflow=""; $("#stage").querySelectorAll("iframe").forEach(f=>f.remove()); save(); render(); }
+function onState(s){ pState=s;
+  if(s===1){ $("#shield").hidden=true; return }
+  if(s===0){ const sv=S.saved[cur.id];
+    showShield("Lesson finished","No autoplay. Decide what's next.",[[sv&&sv.done?"✓ Marked done":"Mark as done",()=>{markDone(true)}],["Watch again",()=>{player.seekTo(0);player.playVideo()}],["Close",closePlayer]]); }
+}
+function showShield(t,p,btns){ $("#shieldTitle").textContent=t; $("#shieldText").textContent=p;
+  $("#shieldRow").replaceChildren(...btns.map(([l,fn],i)=>h("button",{class:"btn small"+(i?" ghost":""),onclick:fn},l))); $("#shield").hidden=false; }
+function ensureSaved(){ if(!S.saved[cur.id]){ const ch=detect(cur.title+" "+(lastSearch.input||""))||lastSearch.chapter||CHAPTERS[0];
+  S.saved[cur.id]={id:cur.id,title:cur.title,channel:cur.channel,channelId:cur.channelId,thumb:cur.thumb,dur:cur.dur,published:cur.published,views:cur.views,chapter:ch.id,addedAt:Date.now(),done:false,notes:[]};} return S.saved[cur.id];}
+function markDone(force){ const sv=ensureSaved(); sv.done=force===true?true:!sv.done; save(); updateDoneBtn(); if(pState===0) onState(0); toast(sv.done?"Marked done and kept in My Feed":"Marked not done"); }
+function updateDoneBtn(){ const sv=cur&&S.saved[cur.id]; $("#pDone").textContent=sv&&sv.done?"✓ Done":"Mark done"; }
+function curTime(){ try{return player&&player.getCurrentTime?player.getCurrentTime():0}catch(e){return 0} }
+function renderNotes(){ const sv=cur&&S.saved[cur.id]; const list=$("#noteList"); list.replaceChildren();
+  const notes=(sv&&sv.notes)||[];
+  if(!notes.length) list.append(h("p",{class:"hint",style:"margin:0"},"Notes are saved with the video in My Feed. Tap a time to jump back to that moment."));
+  notes.slice().sort((a,b)=>a.t-b.t).forEach(n=>list.append(h("div",{class:"note"},
+    h("button",{class:"ts",onclick:()=>{try{player.seekTo(n.t,true);player.playVideo()}catch(e){}}},fmtDur(n.t)),
+    h("span",{},n.text),
+    h("button",{class:"x","aria-label":"Delete note",onclick:()=>{sv.notes=sv.notes.filter(x=>x!==n);save();renderNotes()}},"×"))));}
+$("#noteAdd").onclick=()=>{ const t=$("#noteText").value.trim(); if(!t) return; const sv=ensureSaved(); sv.notes.push({t:Math.floor(curTime()),text:t}); save(); $("#noteText").value=""; renderNotes(); };
+$("#noteText").addEventListener("keydown",e=>{ if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)) $("#noteAdd").click(); });
+$("#pClose").onclick=closePlayer; $("#pDone").onclick=()=>markDone();
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("#player").hidden) closePlayer(); });
+
+function updateSession(){ $("#psession").textContent="Session "+fmtDur(sessionSecs); $("#todayMin").textContent=Math.round((S.study[today()]||0)/60)+" min"; }
+setInterval(()=>{
+  if(!$("#player").hidden){ $("#noteAdd").textContent="Add note at "+fmtDur(curTime());
+    if(pState===1 && !document.hidden){ sessionSecs++; const d=today(); S.study[d]=(S.study[d]||0)+1; if(sessionSecs%15===0) save(); updateSession(); } }
+},1000);
+
+/* ---------------- Router ---------------- */
+let route=((()=>{try{return location.hash}catch(e){return ""}})()||"#search").slice(1);
+function go(r){ route=r; try{ history.replaceState(null,"","#"+r) }catch(e){} render(); try{window.scrollTo(0,0)}catch(e){} }
+function render(){
+  const r=route;
+  document.querySelectorAll(".tabs a").forEach(a=>{ if(a.dataset.tab===r) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  ({feed:renderFeed,syllabus:renderSyllabus,settings:renderSettings}[r]||renderSearch)();
+  updateSession();
+}
+// In-page links (#feed, #syllabus, ...) switch views directly, so they work even where the address bar can't change.
+document.addEventListener("click",e=>{
+  const a=e.target.closest&&e.target.closest('a[href^="#"]'); if(!a) return;
+  const r=a.getAttribute("href").slice(1); if(!r) return;
+  e.preventDefault(); go(r);
+});
+window.addEventListener("hashchange",()=>{ const r=(location.hash||"#search").slice(1); if(r!==route){ route=r; render(); window.scrollTo(0,0);} });
+render();
+</script>
+</body>
+</html>
