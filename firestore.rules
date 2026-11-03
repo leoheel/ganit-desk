@@ -1,0 +1,20 @@
+rules_version = '2';
+// Ganit Desk: each student can read and write only their own record.
+// The site owner (emails listed below) can read every record for the student dashboard.
+// Replace you@gmail.com with the same Gmail address(es) you put in CONFIG.ADMIN_EMAILS.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['you@gmail.com'];
+    }
+    match /users/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create, update, delete: if request.auth != null && request.auth.uid == uid;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

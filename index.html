@@ -231,6 +231,22 @@ footer{color:var(--muted);font-size:12.5px;padding-block:0 30px}
   .pgrid{gap:0}
   .notes{border-radius:0;margin-top:0}
 }
+/* Accounts */
+.acct{border:1px solid var(--line);background:var(--surface);border-radius:999px;height:36px;padding:0 14px;font-weight:700;font-size:14px;cursor:pointer;color:var(--blue);white-space:nowrap}
+.acct:hover{background:var(--sky)}
+.acct.in{width:36px;padding:0;background:var(--blue-m);color:#fff;border-color:var(--blue-m);font-size:15px}
+.table-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:12px}
+table.students{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;min-width:720px}
+table.students th{text-align:left;font:500 11px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--sky);padding:10px 12px}
+table.students td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+table.students td.num,table.students th.num{text-align:right}
+table.students .who b{display:block}
+table.students .who span{color:var(--muted);font-size:12.5px}
+.consent{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:15px}
+.consent input{width:20px;height:20px;margin-top:2px;flex:none}
+.prose{max-width:68ch}
+.prose h2{margin-top:26px}
+.prose p,.prose li{color:var(--ink)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -248,6 +264,7 @@ footer{color:var(--muted);font-size:12.5px;padding-block:0 30px}
       <a href="#syllabus" data-tab="syllabus">Syllabus</a>
     </nav>
     <div class="today" title="Time spent watching on Ganit Desk today"><span>STUDIED TODAY</span><strong id="todayMin">0 min</strong></div>
+    <button class="acct" id="acct" type="button" hidden></button>
     <a class="icon-btn" href="#settings" aria-label="Settings" title="Settings">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </a>
@@ -255,7 +272,7 @@ footer{color:var(--muted);font-size:12.5px;padding-block:0 30px}
 </header>
 
 <main class="wrap" id="app"></main>
-<footer class="wrap">Videos come from YouTube. Ganit Desk hides Shorts and anything under 3 minutes, and never autoplays the next video.</footer>
+<footer class="wrap">Videos come from YouTube. Ganit Desk hides Shorts and anything under 3 minutes, and never autoplays the next video. · <a href="#privacy">Privacy</a></footer>
 
 <div class="player" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="ptitle">
   <div class="pbar">
@@ -307,6 +324,9 @@ const CONFIG = {
     {name:"Maths Unplugged",        match:"mathsunplugged"},
     {name:"Mathsmerizing",          match:"mathsmerizing"}
   ],
+  // Google sign-in (optional). Paste your Firebase web-app config here to turn on accounts.
+  FIREBASE: { apiKey: "", authDomain: "", projectId: "", appId: "" },
+  ADMIN_EMAILS: ["you@gmail.com"],   // Gmail addresses that can open the student dashboard (#admin)
   PRIORITY_SEARCH: true,     // one extra YouTube search per query aimed at the channels above (uses 100 more quota units)
   MIN_SECONDS: 181,          // anything 3:00 or shorter is treated as a Short and dropped
   CACHE_HOURS: 24            // repeat searches are served from the browser cache to save quota
@@ -335,7 +355,7 @@ const CHAPTERS = [
   {id:"cont",cls:"XII",name:"Continuity & Differentiability",q:"continuity and differentiability",subs:["Continuity at a point","Differentiability","Chain rule & implicit","Parametric & log differentiation"],kw:["continuous","continuity","differentiable","differentiability","derivative of","chain rule","implicit","dy/dx","d/dx"]},
   {id:"aod",cls:"XII",w:1.5,name:"Application of Derivatives",q:"application of derivatives",subs:["Maxima & minima","Increasing & decreasing","Tangents & normals","Rolle's & LMVT"],kw:["maximum","minimum","maxima","minima","increasing","decreasing","monotonic","tangent","normal","rolle","mean value","rate of change","greatest value","least value"]},
   {id:"indef",cls:"XII",name:"Indefinite Integration",q:"indefinite integration",subs:["Substitution","Integration by parts","Partial fractions","Special integrals"],kw:["∫","integral","integrate","integration","dx","antiderivative","primitive","by parts"]},
-  {id:"def",cls:"XII",w:2,name:"Definite Integration",q:"definite integration",subs:["Properties (King's rule)","Leibniz rule","Limit as a sum","Periodic functions"],kw:["definite integral","∫0","∫_0","∫₀","from 0 to","0 to π","limits of integration","leibniz","lim n→∞ σ","limit of sum"]},
+  {id:"def",cls:"XII",w:2,name:"Definite Integration",q:"definite integration",subs:["Properties (King's rule)","Leibniz rule","Limit as a sum","Periodic functions"],kw:["definite","definite integral","∫0","∫_0","∫₀","from 0 to","0 to π","limits of integration","leibniz","lim n→∞ σ","limit of sum"]},
   {id:"area",cls:"XII",w:2,name:"Area Under Curves",q:"area under curves",subs:["Area between curves","Area with modulus & GIF"],kw:["area bounded","area enclosed","area under","region bounded","area of the region","area between"]},
   {id:"de",cls:"XII",w:2,name:"Differential Equations",q:"differential equations",subs:["Order & degree","Variable separable","Homogeneous","Linear DE"],kw:["differential equation","order and degree","general solution","integrating factor","particular solution","variable separable","dy/dx +"]},
   {id:"vector",cls:"XII",name:"Vector Algebra",q:"vector algebra",subs:["Dot product","Cross product","Scalar triple product","Vector triple product"],kw:["vector","vectors","dot product","cross product","î","ĵ","k̂","unit vector","triple product","coplanar","a⃗","position vector"]},
@@ -348,8 +368,8 @@ const CH = Object.fromEntries(CHAPTERS.map(c=>[c.id,c]));
 const KEY="ganitdesk.v1", CKEY="ganitdesk.cache.v1";
 function load(k,fallback){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fallback}catch(e){return fallback}}
 function persist(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-const S = Object.assign({saved:{},follows:["def","aod","pnc"],hidden:{},apiKey:"",study:{},filters:{exam:"main",kind:"concept",lang:"en",len:"any"},sort:"relevance"}, load(KEY,{}));
-const save=()=>persist(KEY,S);
+const S = Object.assign({watched:{},saved:{},follows:["def","aod","pnc"],hidden:{},apiKey:"",study:{},filters:{exam:"main",kind:"concept",lang:"en",len:"any"},sort:"relevance"}, load(KEY,{}));
+function save(){ persist(KEY,S); if(window.cloudQueue) cloudQueue(); }
 let cache = load(CKEY,{});
 const apiKey=()=> (CONFIG.YOUTUBE_API_KEY||S.apiKey||"").trim();
 
@@ -629,6 +649,17 @@ function renderSyllabus(){
 function renderSettings(){
   const app=$("#app"); app.replaceChildren();
   app.append(h("div",{class:"eyebrow"},"Settings"),h("h1",{},"Settings"));
+  if(cloud.on){
+    const ap=h("div",{class:"panel"},h("h3",{},"Your account"));
+    if(cloud.user){
+      const conf=h("div",{class:"set-row",hidden:true},h("span",{},"Delete everything saved to your account? This device keeps its copy."),
+        h("span",{},h("button",{class:"btn small",style:"background:var(--danger)",onclick:deleteAccountData},"Delete")," ",h("button",{class:"btn ghost small",onclick:()=>conf.hidden=true},"Cancel")));
+      ap.append(h("div",{class:"set-row"},h("span",{},"Signed in as ",h("b",{},cloud.user.email||"")),h("button",{class:"btn ghost small",onclick:signOut},"Sign out")),
+        cloud.admin?h("div",{class:"set-row"},h("span",{},"Site owner"),h("a",{href:"#admin",class:"btn small",style:"text-decoration:none"},"Open student dashboard")):null,
+        h("div",{class:"set-row"},h("span",{},"Delete my account data"),h("button",{class:"btn ghost small",onclick:()=>conf.hidden=false},"Delete…")),conf);
+    } else ap.append(h("p",{class:"hint"},"Sign in with Google to keep your feed, notes and progress on every device."),h("button",{class:"btn",onclick:signIn},"Sign in with Google"));
+    app.append(ap);
+  }
   const keyP=h("div",{class:"panel"},h("h3",{},"YouTube connection"));
   {const inp=h("input",{id:"keyInput2",placeholder:"YouTube Data API v3 key",autocomplete:"off"});inp.value=S.apiKey||"";
     keyP.append(h("p",{class:"hint"},"Stored only in this browser."),h("form",{class:"field",onsubmit:e=>{e.preventDefault();S.apiKey=inp.value.trim();save();toast("Saved")}},inp,h("button",{class:"btn",type:"submit"},"Save")));}
@@ -644,8 +675,8 @@ function renderSettings(){
     try{const d=JSON.parse(await e.target.files[0].text()); if(!d||typeof d.saved!=="object") throw 0;
       Object.assign(S,{saved:d.saved,follows:d.follows||S.follows,hidden:d.hidden||{},study:d.study||{}});save();toast("Feed restored: "+Object.keys(S.saved).length+" videos");renderSettings()}
     catch(_){toast("That file isn't a Ganit Desk backup.")}}});
-  const confirmRow=h("div",{class:"set-row",hidden:true},h("span",{},"Delete your feed, notes and study time from this browser?"),
-    h("span",{},h("button",{class:"btn small",style:"background:var(--danger)",onclick:()=>{S.saved={};S.study={};S.hidden={};save();cache={};persist(CKEY,cache);toast("Cleared");renderSettings()}},"Delete"),
+  const confirmRow=h("div",{class:"set-row",hidden:true},h("span",{},cloud.user?"Sign out and delete your feed, notes and study time from this device? Your account keeps its copy.":"Delete your feed, notes and study time from this browser?"),
+    h("span",{},h("button",{class:"btn small",style:"background:var(--danger)",onclick:async()=>{ if(cloud.user) await signOut(); S.saved={};S.study={};S.hidden={};S.watched={};delete S.owner;persist(KEY,S);cache={};persist(CKEY,cache);toast("Cleared from this device");renderSettings()}},"Delete"),
       " ",h("button",{class:"btn ghost small",onclick:()=>confirmRow.hidden=true},"Cancel")));
   app.append(h("div",{class:"panel"},h("h3",{},"Your data"),
     h("p",{class:"hint"},"Your feed lives in this browser. Back it up to move it to another device."),
@@ -710,8 +741,194 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("#player").hidd
 function updateSession(){ $("#psession").textContent="Session "+fmtDur(sessionSecs); $("#todayMin").textContent=Math.round((S.study[today()]||0)/60)+" min"; }
 setInterval(()=>{
   if(!$("#player").hidden){ $("#noteAdd").textContent="Add note at "+fmtDur(curTime());
-    if(pState===1 && !document.hidden){ sessionSecs++; const d=today(); S.study[d]=(S.study[d]||0)+1; if(sessionSecs%15===0) save(); updateSession(); } }
+    if(pState===1 && !document.hidden){ sessionSecs++; const d=today(); S.study[d]=(S.study[d]||0)+1; S.watched[cur.id]=(S.watched[cur.id]||0)+1; if(sessionSecs%15===0) save(); updateSession(); } }
 },1000);
+
+/* ---------------- Accounts: Google sign-in via Firebase (optional) ---------------- */
+const FB=CONFIG.FIREBASE||{};
+const cloud={on:false,user:null,db:null,meta:null,admin:false,timer:null,dirty:false,loading:false};
+const fbConfigured=()=>!!(FB.apiKey&&FB.projectId);
+const isAdminEmail=e=>!!e&&(CONFIG.ADMIN_EMAILS||[]).map(x=>x.toLowerCase()).includes(e.toLowerCase());
+function loadScript(src){return new Promise((res,rej)=>{const t=document.createElement("script");t.src=src;t.onload=res;t.onerror=rej;document.head.append(t)})}
+
+async function initCloud(){
+  if(!fbConfigured()) return;
+  const base="https://www.gstatic.com/firebasejs/10.12.2/";
+  try{
+    await loadScript(base+"firebase-app-compat.js");
+    await Promise.all([loadScript(base+"firebase-auth-compat.js"),loadScript(base+"firebase-firestore-compat.js")]);
+    firebase.initializeApp(FB); cloud.db=firebase.firestore(); cloud.on=true;
+    firebase.auth().getRedirectResult().catch(()=>{});
+    firebase.auth().onAuthStateChanged(u=>onUser(u));
+  }catch(e){ cloud.on=false; }
+  renderAccount();
+}
+
+function renderAccount(){
+  const b=$("#acct"); if(!cloud.on){b.hidden=true;return}
+  b.hidden=false;
+  if(cloud.user){ b.className="acct in"; b.textContent=((cloud.user.displayName||cloud.user.email||"?").trim()[0]||"?").toUpperCase();
+    b.title="Signed in as "+(cloud.user.email||""); b.setAttribute("aria-label","Your account"); b.onclick=()=>go("settings"); }
+  else { b.className="acct"; b.textContent="Sign in"; b.title="Sign in with your Google account"; b.removeAttribute("aria-label"); b.onclick=signIn; }
+}
+
+async function signIn(){
+  const prov=new firebase.auth.GoogleAuthProvider(); prov.setCustomParameters({prompt:"select_account"});
+  try{ await firebase.auth().signInWithPopup(prov); }
+  catch(e){
+    if(e&&(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment")){ try{await firebase.auth().signInWithRedirect(prov)}catch(_){ toast("Sign-in didn't open. Allow pop-ups for this site and try again.") } }
+    else if(e&&e.code!=="auth/popup-closed-by-user"&&e.code!=="auth/cancelled-popup-request") toast("Couldn't sign in"+(e.code?" ("+e.code.replace("auth/","")+")":"")+". Try again.");
+  }
+}
+async function signOut(){ await cloudFlush(); try{await firebase.auth().signOut()}catch(e){} toast("Signed out. Your feed stays on this device."); }
+
+async function onUser(u){
+  cloud.user=u; cloud.meta=null; cloud.admin=!!u&&isAdminEmail(u.email);
+  renderAccount();
+  if(!u){ render(); return }
+  cloud.loading=true;
+  try{
+    const snap=await cloud.db.collection("users").doc(u.uid).get();
+    const d=snap.exists?snap.data():null;
+    if(!d||!d.consentAt){ cloud.loading=false; go("welcome"); return }
+    cloud.meta={createdAt:d.createdAt,consentAt:d.consentAt};
+    claimDevice(u.uid); mergeIn(d); persist(KEY,S);
+    cloud.loading=false; await cloudPush(); refreshSavedMeta(); render();
+    toast("Signed in. Your feed is saved to your account.");
+  }catch(e){ cloud.loading=false; toast("Signed in, but your saved data couldn't load. Check your connection."); render(); }
+}
+
+// A device's local data belongs to the last account that used it. A different student signing in starts clean.
+function claimDevice(uid){
+  if(S.owner && S.owner!==uid){ S.saved={}; S.study={}; S.watched={}; S.hidden={}; }
+  S.owner=uid;
+}
+// Merge account data into this device's data (keeps the larger/union of both, so nothing is lost)
+function mergeIn(d){
+  for(const [id,c] of Object.entries(d.saved||{})){
+    const l=S.saved[id];
+    if(!l){ S.saved[id]={id,title:"",channel:"",thumb:"",dur:0,...c,notes:c.notes||[]}; continue }
+    l.done=!!(l.done||c.done); l.chapter=l.chapter||c.chapter; l.addedAt=Math.min(l.addedAt||Infinity,c.addedAt||Infinity);
+    const keys=new Set(l.notes.map(n=>n.t+"|"+n.text)); (c.notes||[]).forEach(n=>{ if(!keys.has(n.t+"|"+n.text)) l.notes.push(n) });
+  }
+  for(const [k,v] of Object.entries(d.study||{})) S.study[k]=Math.max(S.study[k]||0,v);
+  for(const [k,v] of Object.entries(d.watched||{})) S.watched[k]=Math.max(S.watched[k]||0,v);
+  Object.assign(S.hidden,d.hidden||{});
+  if(Array.isArray(d.follows)&&d.follows.length) S.follows=[...new Set([...d.follows,...S.follows])];
+}
+
+// What goes to the account: the student's own activity. Video titles/thumbnails are not stored; they're re-fetched from YouTube.
+function cloudDoc(){
+  const u=cloud.user, now=Date.now();
+  const saved={}; for(const [id,v] of Object.entries(S.saved)) saved[id]={chapter:v.chapter,done:!!v.done,addedAt:v.addedAt||now,notes:v.notes||[]};
+  const week=Object.entries(S.study).filter(([d])=>now-new Date(d).getTime()<7*864e5).reduce((a,[,x])=>a+x,0);
+  const total=Object.values(S.study).reduce((a,x)=>a+x,0);
+  return {name:u.displayName||"",email:u.email||"",createdAt:cloud.meta.createdAt,consentAt:cloud.meta.consentAt,
+    lastSeen:firebase.firestore.FieldValue.serverTimestamp(),
+    follows:S.follows,hidden:S.hidden,study:S.study,watched:S.watched,saved,
+    stats:{todaySecs:S.study[today()]||0,weekSecs:week,totalSecs:total,savedCount:Object.keys(saved).length,doneCount:Object.values(saved).filter(v=>v.done).length,videosWatched:Object.keys(S.watched).length}};
+}
+async function cloudPush(){
+  if(!cloud.on||!cloud.user||!cloud.meta) return;
+  cloud.dirty=false; clearTimeout(cloud.timer); cloud.timer=null;
+  try{ await cloud.db.collection("users").doc(cloud.user.uid).set(cloudDoc()); }catch(e){ cloud.dirty=true; }
+}
+window.cloudQueue=()=>{ if(!cloud.user||!cloud.meta) return; cloud.dirty=true; if(!cloud.timer) cloud.timer=setTimeout(cloudPush,30000); };
+async function cloudFlush(){ if(cloud.dirty) await cloudPush(); }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") cloudFlush(); });
+
+// Saved videos that came from the account have no title yet: fetch them from YouTube (1 quota unit per 50 videos)
+async function refreshSavedMeta(){
+  const need=Object.values(S.saved).filter(v=>!v.title).map(v=>v.id); if(!need.length||!apiKey()) return;
+  try{ for(let i=0;i<need.length;i+=50){
+      const r=await yt("videos",{part:"snippet,contentDetails,statistics",id:need.slice(i,i+50).join(",")});
+      (r.items||[]).forEach(x=>{const v=S.saved[x.id]; if(!v) return; Object.assign(v,{title:x.snippet.title,channel:x.snippet.channelTitle,channelId:x.snippet.channelId,
+        thumb:(x.snippet.thumbnails?.medium||x.snippet.thumbnails?.default||{}).url||"",published:x.snippet.publishedAt,dur:isoDur(x.contentDetails.duration),views:+(x.statistics?.viewCount||0)})});
+    } persist(KEY,S); if(route==="feed") render(); }catch(e){}
+}
+
+function renderWelcome(){
+  const app=$("#app"); app.replaceChildren();
+  if(!cloud.user){ go("search"); return }
+  const first=(cloud.user.displayName||"").split(" ")[0]||"there";
+  const cb=h("input",{type:"checkbox",id:"consentBox"});
+  const btn=h("button",{class:"btn",disabled:true,onclick:async()=>{
+      btn.disabled=true;
+      const ts=firebase.firestore.FieldValue.serverTimestamp();
+      cloud.meta={createdAt:ts,consentAt:ts};
+      claimDevice(cloud.user.uid); persist(KEY,S);
+      await cloudPush(); refreshSavedMeta(); toast("Account ready. Your feed is saved."); go("feed"); }},"Continue");
+  cb.addEventListener("change",()=>btn.disabled=!cb.checked);
+  app.append(h("div",{class:"prose"},
+    h("div",{class:"eyebrow"},"One step before you start"),
+    h("h1",{},"Welcome, "+first+"."),
+    h("p",{class:"lede"},"Signing in keeps your feed, notes and progress on every device you use."),
+    h("div",{class:"panel"},
+      h("h3",{},"What Ganit Desk saves to your account"),
+      h("ul",{},h("li",{},"Your name and Gmail address"),h("li",{},"Videos you save, mark done or take notes on"),h("li",{},"How many minutes you study each day, and on which videos"),h("li",{},"Chapters you follow and channels you hide")),
+      h("p",{class:"hint"},"You and the people who run Ganit Desk can see this. It is never sold or shown to other students. You can delete it any time in Settings. ",h("a",{href:"#privacy"},"Read the privacy notice")),
+      h("label",{class:"consent",for:"consentBox"},cb,h("span",{},"I am 18 or older, or my parent or guardian has agreed to me using Ganit Desk with this account.")),
+      h("div",{class:"actions",style:"margin-top:14px"},btn,h("button",{class:"btn ghost",onclick:async()=>{try{await firebase.auth().signOut()}catch(e){} go("search")}},"No thanks, sign out")))));
+}
+
+async function deleteAccountData(){
+  if(!cloud.user) return;
+  try{ await cloud.db.collection("users").doc(cloud.user.uid).delete(); cloud.meta=null; await firebase.auth().signOut(); toast("Your account data was deleted."); go("settings"); }
+  catch(e){ toast("Couldn't delete right now. Check your connection and try again."); }
+}
+
+/* ---------------- Student dashboard (site owner only) ---------------- */
+async function renderAdmin(){
+  const app=$("#app"); app.replaceChildren();
+  app.append(h("div",{class:"eyebrow"},"Site owner"),h("h1",{},"Students"));
+  if(!cloud.on){ app.append(h("div",{class:"panel"},h("h3",{},"Accounts aren't switched on"),h("p",{class:"hint"},"Add your Firebase settings to CONFIG.FIREBASE in index.html to turn on sign-in."))); return }
+  if(!cloud.user||!cloud.admin){ app.append(h("div",{class:"panel"},h("h3",{},"Only the site owner can see this page"),h("p",{class:"hint"},cloud.user?"You're signed in as "+cloud.user.email+", which isn't on the owner list.":"Sign in with the owner's Gmail account to see student activity."))); return }
+  const box=h("div",{},h("div",{class:"skel"})); app.append(box);
+  try{
+    const qs=await cloud.db.collection("users").orderBy("lastSeen","desc").limit(500).get();
+    const rows=[]; qs.forEach(d=>rows.push(d.data()));
+    const now=Date.now(), active7=rows.filter(r=>r.lastSeen&&now-r.lastSeen.toMillis()<7*864e5).length;
+    const totalWeek=rows.reduce((a,r)=>a+((r.stats||{}).weekSecs||0),0);
+    box.replaceChildren(
+      h("div",{class:"stats"},
+        h("div",{class:"stat"},h("b",{},rows.length),h("span",{},"students signed up")),
+        h("div",{class:"stat"},h("b",{},active7),h("span",{},"active in last 7 days")),
+        h("div",{class:"stat"},h("b",{},(totalWeek/3600).toFixed(1)),h("span",{},"hours studied this week")),
+        h("div",{class:"stat"},h("b",{},rows.reduce((a,r)=>a+((r.stats||{}).doneCount||0),0)),h("span",{},"lessons completed"))),
+      rows.length?h("div",{class:"table-wrap"},h("table",{class:"students"},
+        h("thead",{},h("tr",{},h("th",{},"Student"),h("th",{},"Last active"),h("th",{class:"num"},"Today (min)"),h("th",{class:"num"},"7 days (h)"),h("th",{class:"num"},"Total (h)"),h("th",{class:"num"},"Done"),h("th",{class:"num"},"Saved"),h("th",{},"Following"))),
+        h("tbody",{},rows.map(r=>{const st=r.stats||{}; const ls=r.lastSeen?r.lastSeen.toDate():null;
+          const todayMin = ls && ls.toISOString().slice(0,10)===today() ? Math.round((st.todaySecs||0)/60) : 0;
+          return h("tr",{},
+            h("td",{class:"who"},h("b",{},r.name||"(no name)"),h("span",{},r.email||"")),
+            h("td",{},ls?ls.toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"–"),
+            h("td",{class:"num"},todayMin),h("td",{class:"num"},((st.weekSecs||0)/3600).toFixed(1)),h("td",{class:"num"},((st.totalSecs||0)/3600).toFixed(1)),
+            h("td",{class:"num"},st.doneCount||0),h("td",{class:"num"},st.savedCount||0),
+            h("td",{},(r.follows||[]).map(id=>CH[id]?CH[id].name:null).filter(Boolean).slice(0,3).join(", ")||"–"));})))):
+        h("div",{class:"panel"},h("h3",{},"No students yet"),h("p",{class:"hint"},"Students appear here after they sign in and accept the privacy notice.")),
+      h("p",{class:"hint"},"“7 days” and “Total” come from each student's last sync. Times are in your timezone."));
+  }catch(e){ box.replaceChildren(h("div",{class:"panel err"},h("h3",{},"Couldn't load students"),h("p",{},"Check that the Firestore rules include your Gmail as an admin (see firestore.rules), then refresh."))); }
+}
+
+/* ---------------- Privacy notice ---------------- */
+function renderPrivacy(){
+  const app=$("#app"); app.replaceChildren();
+  const L=(href,t)=>h("a",{href,target:"_blank",rel:"noopener"},t);
+  app.append(h("div",{class:"prose"},
+    h("div",{class:"eyebrow"},"Privacy"),h("h1",{},"Privacy notice"),
+    h("p",{class:"lede"},"Ganit Desk helps Class XI–XII students find full-length JEE Maths lessons on YouTube."),
+    h("h2",{},"Without signing in"),
+    h("p",{},"Your saved videos, notes, followed chapters and study time are kept only in this browser on this device. Nothing is sent to us."),
+    h("h2",{},"When you sign in with Google"),
+    h("p",{},"We save your name, Gmail address, the videos you save or mark done, your notes, the chapters you follow, the channels you hide, and how long you study each day and on which videos. The site's owners can see this to understand how students use Ganit Desk. We don't sell it, show it to other students, or use it for advertising."),
+    h("p",{},"Students under 18 should use Ganit Desk only with a parent's or guardian's agreement."),
+    h("h2",{},"YouTube"),
+    h("p",{},"Ganit Desk uses YouTube API Services to search for and play videos. By using Ganit Desk you agree to the ",L("https://www.youtube.com/t/terms","YouTube Terms of Service"),". Google's handling of data is described in the ",L("https://policies.google.com/privacy","Google Privacy Policy"),". Videos play in YouTube's own player, which YouTube may use to collect data under that policy."),
+    h("h2",{},"Your choices"),
+    h("ul",{},h("li",{},"Delete your account data at any time from Settings → Your account."),
+      h("li",{},"Remove Ganit Desk's access to your Google account from ",L("https://security.google.com/settings/security/permissions","Google security settings"),"."),
+      h("li",{},"Clear this device's data from Settings → Your data."))));
+}
 
 /* ---------------- Router ---------------- */
 let route=((()=>{try{return location.hash}catch(e){return ""}})()||"#search").slice(1);
@@ -719,7 +936,7 @@ function go(r){ route=r; try{ history.replaceState(null,"","#"+r) }catch(e){} re
 function render(){
   const r=route;
   document.querySelectorAll(".tabs a").forEach(a=>{ if(a.dataset.tab===r) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
-  ({feed:renderFeed,syllabus:renderSyllabus,settings:renderSettings}[r]||renderSearch)();
+  ({feed:renderFeed,syllabus:renderSyllabus,settings:renderSettings,admin:renderAdmin,privacy:renderPrivacy,welcome:renderWelcome}[r]||renderSearch)();
   updateSession();
 }
 // In-page links (#feed, #syllabus, ...) switch views directly, so they work even where the address bar can't change.
@@ -730,6 +947,7 @@ document.addEventListener("click",e=>{
 });
 window.addEventListener("hashchange",()=>{ const r=(location.hash||"#search").slice(1); if(r!==route){ route=r; render(); window.scrollTo(0,0);} });
 render();
+initCloud();
 </script>
 </body>
 </html>
