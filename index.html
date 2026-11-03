@@ -630,7 +630,7 @@ function renderSettings(){
   const app=$("#app"); app.replaceChildren();
   app.append(h("div",{class:"eyebrow"},"Settings"),h("h1",{},"Settings"));
   const keyP=h("div",{class:"panel"},h("h3",{},"YouTube connection"));
-  else{const inp=h("input",{id:"keyInput2",placeholder:"YouTube Data API v3 key",autocomplete:"off"});inp.value=S.apiKey||"";
+  {const inp=h("input",{id:"keyInput2",placeholder:"YouTube Data API v3 key",autocomplete:"off"});inp.value=S.apiKey||"";
     keyP.append(h("p",{class:"hint"},"Stored only in this browser."),h("form",{class:"field",onsubmit:e=>{e.preventDefault();S.apiKey=inp.value.trim();save();toast("Saved")}},inp,h("button",{class:"btn",type:"submit"},"Save")));}
   if(!CONFIG.YOUTUBE_API_KEY) app.append(keyP);
 
