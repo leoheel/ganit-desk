@@ -107,6 +107,7 @@ select.sort{border:1px solid var(--line);background:var(--surface);border-radius
 .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:4px}
 .saved-btn{background:var(--green-l)!important;color:var(--green)!important}
 .pill{font:500 11px/1 var(--f-mono);text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:4px 8px;border:1px solid var(--line);color:var(--muted)}
+.pill.rec{color:#7A4F00;background:var(--yellow-l);border-color:var(--yellow-l)}
 .pill.ok{color:var(--green);background:var(--green-l);border-color:var(--green-l)}
 @media (max-width:640px){
   .vid{grid-template-columns:1fr;gap:10px}
@@ -294,6 +295,19 @@ footer{color:var(--muted);font-size:12.5px;padding-block:0 30px}
 const CONFIG = {
   YOUTUBE_API_KEY: "AIzaSyDC5OACd32T5vP_sUBiPo4D-bzq9o_mOmM",
   REGION: "IN",
+  // Recommended channels, shown first, in this order. "match" is compared with the channel name
+  // (lower case, spaces and symbols removed). "pyq: true" puts that channel first when a student picks "Previous year Qs".
+  PRIORITY_CHANNELS: [
+    {name:"ACZADA",                 match:"aczada"},
+    {name:"Factorial Academy",      match:"factorialacademy"},
+    {name:"Aryabhatta IIT Maths",   match:"aryabhatta", pyq:true},
+    {name:"All Rounder JEE Maths",  match:"allrounder"},
+    {name:"Bhannat Maths",          match:"bhannat"},
+    {name:"RZ Maths",               match:"rzmaths"},
+    {name:"Maths Unplugged",        match:"mathsunplugged"},
+    {name:"Mathsmerizing",          match:"mathsmerizing"}
+  ],
+  PRIORITY_SEARCH: true,     // one extra YouTube search per query aimed at the channels above (uses 100 more quota units)
   MIN_SECONDS: 181,          // anything 3:00 or shorter is treated as a Short and dropped
   CACHE_HOURS: 24            // repeat searches are served from the browser cache to save quota
 };
@@ -377,13 +391,18 @@ async function yt(path,params){
     throw new Error(j?.error?.message||("YouTube returned an error ("+r.status+")."));}
   return j;}
 
-async function searchVideos(query,f){
-  const ck=JSON.stringify([query,f.len,f.lang]);
+async function searchVideos(query,f,core){
+  const ck=JSON.stringify([query,f.len,f.lang,CONFIG.PRIORITY_SEARCH?1:0]);
   const hit=cache[ck]; if(hit && Date.now()-hit.at < CONFIG.CACHE_HOURS*3600e3) return {items:hit.items,cached:true};
   const base={part:"snippet",type:"video",q:query,maxResults:f.len==="any"?50:30,videoEmbeddable:"true",safeSearch:"strict",regionCode:CONFIG.REGION,relevanceLanguage:f.lang==="hi"?"hi":"en"};
   if(f.len==="medium") base.videoDuration="medium"; if(f.len==="long") base.videoDuration="long";
-  const sr=await yt("search",base);
-  const ids=(sr.items||[]).map(i=>i.id?.videoId).filter(Boolean);
+  const calls=[yt("search",base)];
+  if(CONFIG.PRIORITY_SEARCH && CONFIG.PRIORITY_CHANNELS.length && core){
+    const names=CONFIG.PRIORITY_CHANNELS.map(c=>'"'+c.name+'"').join("|");
+    calls.push(yt("search",{...base,maxResults:25,q:core+" maths ("+names+")"}).catch(()=>({items:[]})));
+  }
+  const [sr,pr={items:[]}]=await Promise.all(calls);
+  const ids=[...new Set([...(sr.items||[]),...(pr.items||[])].map(i=>i.id?.videoId).filter(Boolean))].slice(0,50);
   if(!ids.length) return {items:[],cached:false};
   const vr=await yt("videos",{part:"snippet,contentDetails,statistics",id:ids.join(",")});
   const order=Object.fromEntries(ids.map((id,i)=>[id,i]));
@@ -402,6 +421,14 @@ async function searchVideos(query,f){
   persist(CKEY,cache);
   return {items,cached:false};}
 
+/* ---------------- Recommended channels ---------------- */
+const norm=t=>(t||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+function priorityOf(v){
+  const n=norm(v.channel); const list=CONFIG.PRIORITY_CHANNELS;
+  const i=list.findIndex(c=>n.includes(c.match)); if(i<0) return 999;
+  if(S.filters.kind==="pyq" && list[i].pyq) return -1;
+  return i;}
+
 /* ---------------- Search view ---------------- */
 const FILTERS={
   exam:{label:"Exam",opts:[["main","JEE Main"],["adv","JEE Advanced"],["both","Both"]]},
@@ -419,15 +446,15 @@ function buildQuery(input,exact){
   if(!exact && ch && looksLikeQuestion(input)){ core=ch.q; usedChapter=ch; }
   else core=input.replace(/\s+/g," ").trim().slice(0,120);
   const q=[core,"maths",EXAM_Q[f.exam],KIND_Q[f.kind],f.lang==="hi"?"hindi":""].filter(Boolean).join(" ");
-  return {q,chapter:usedChapter||ch,rewritten:!!usedChapter};}
+  return {q,core,chapter:usedChapter||ch,rewritten:!!usedChapter};}
 
 async function runSearch(input,exact=false){
   input=(input||"").trim(); if(!input) return;
-  const {q,chapter,rewritten}=buildQuery(input,exact);
+  const {q,core,chapter,rewritten}=buildQuery(input,exact);
   lastSearch={input,exact,chapter,rewritten,query:q,items:[],cached:false,error:"",loading:true};
   if(route!=="search") go("search"); else renderSearch();
   if(!apiKey()){lastSearch.loading=false;renderSearch();return}
-  try{const r=await searchVideos(q,S.filters);lastSearch.items=r.items;lastSearch.cached=r.cached}
+  try{const r=await searchVideos(q,S.filters,core);lastSearch.items=r.items;lastSearch.cached=r.cached}
   catch(e){lastSearch.error=e.message}
   lastSearch.loading=false; window.__filtersOpen=false; renderSearch();
   try{ if(window.innerWidth<=640){ const st=document.querySelector(".status"); st&&st.scrollIntoView({behavior:"smooth",block:"start"}); } }catch(e){} }
@@ -442,7 +469,7 @@ function videoRow(v,ctx){
       v.thumb?h("img",{src:v.thumb,alt:"",loading:"lazy"}):null, h("span",{class:"dur"},fmtDur(v.dur))),
     h("div",{class:"vbody"},
       h("button",{class:"vtitle",onclick:()=>openPlayer(v)},v.title),
-      h("div",{class:"meta"},h("span",{class:"ch"},v.channel), yr?h("span",{},yr):null, v.views?h("span",{},fmtViews(v.views)):null,
+      h("div",{class:"meta"},h("span",{class:"ch"},v.channel), priorityOf(v)<999?h("span",{class:"pill rec"},"★ Recommended"):null, yr?h("span",{},yr):null, v.views?h("span",{},fmtViews(v.views)):null,
         done?h("span",{class:"pill ok"},"Done"):null, saved&&saved.notes?.length?h("span",{class:"pill"},saved.notes.length+" note"+(saved.notes.length>1?"s":"")):null),
       h("div",{class:"actions"},
         h("button",{class:"btn small",onclick:()=>openPlayer(v)},"Watch"),
@@ -505,6 +532,7 @@ function renderSearch(){
   if(lastSearch.error){app.append(h("div",{class:"panel err"},h("h3",{},"Search didn't work"),h("p",{},lastSearch.error)));return}
   let items=lastSearch.items.filter(v=>!S.hidden[v.channelId]);
   const hiddenCount=lastSearch.items.length-items.length;
+  if(S.sort==="relevance") items=[...items].sort((a,b)=>(priorityOf(a)-priorityOf(b))||(a.rank-b.rank));
   if(S.sort==="views") items=[...items].sort((a,b)=>b.views-a.views);
   if(S.sort==="new") items=[...items].sort((a,b)=>(b.published||"").localeCompare(a.published||""));
   if(S.sort==="short") items=[...items].sort((a,b)=>a.dur-b.dur);
